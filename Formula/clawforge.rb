@@ -1,8 +1,8 @@
 class Clawforge < Formula
   desc "Multi-mode coding workflow CLI for orchestrating AI coding agents"
   homepage "https://github.com/cyperx84/clawforge"
-  url "https://github.com/cyperx84/clawforge/archive/refs/tags/v1.6.3.tar.gz"
-  sha256 "ea3f82bf78f18be193c7e83ad01fd1031e518d4ad83aca052c5290c80d2bdc5a"
+  url "https://github.com/cyperx84/clawforge/archive/refs/tags/v2.0.0.tar.gz"
+  sha256 "577cdf0e2cac9030e6ef20e6ba6a582c3a810bb43043b4fbc44c288996f514d7"
   license "MIT"
   head "https://github.com/cyperx84/clawforge.git", branch: "main"
 
