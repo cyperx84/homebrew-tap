@@ -3,8 +3,8 @@ class Skilleval < Formula
 
   desc "Contention eval for AgentSkills: catch skills that steal each other's triggers"
   homepage "https://github.com/cyperx84/skilleval"
-  url "https://github.com/cyperx84/skilleval/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "9a2eeb8bd3a071cc95f42c12ff855761984c7ba6d7495024e914f5cd2c9f9026"
+  url "https://github.com/cyperx84/skilleval/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "424ebda30fc844fe03be192f3950847eac26ac1fc782a5c4c59a90a9ade8eabb"
   license "MIT"
   head "https://github.com/cyperx84/skilleval.git", branch: "main"
 
@@ -50,5 +50,30 @@ class Skilleval < Formula
       Evil skill body.
     MARKDOWN
     assert_match "fail", shell_output("#{bin}/skilleval scan #{testpath}/evil", 1)
+
+    # A skill that takes most of one incumbent's triggers must fail the gate and
+    # name its victim, however large the roster.
+    (testpath/"roster/victim").mkpath
+    (testpath/"roster/victim/SKILL.md").write <<~MARKDOWN
+      ---
+      name: victim
+      description: "Handles administrative chores, scheduling logistics, inventory
+        reconciliation, and departmental planning workshops. Use when: encoding a FLAC
+        audio file, pruning rose bushes, filing tax returns, debugging kernel panics"
+      ---
+      Victim skill body.
+    MARKDOWN
+    (testpath/"roster/thief").mkpath
+    (testpath/"roster/thief/SKILL.md").write <<~MARKDOWN
+      ---
+      name: thief
+      description: "Use when: encoding a FLAC audio file, pruning rose bushes, filing
+        tax returns, debugging kernel panics"
+      ---
+      Thief skill body.
+    MARKDOWN
+    out = shell_output("#{bin}/skilleval contend thief", 1)
+    assert_match "\"worst_victim\": \"victim\"", out
+    assert_match "\"gate\": \"fail\"", out
   end
 end
