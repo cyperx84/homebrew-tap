@@ -86,7 +86,9 @@ class Skilleval < Formula
     (testpath/"thin/solo/SKILL.md").write <<~MARKDOWN
       ---
       name: solo
-      description: "Use when: encoding a FLAC audio file"
+      description: "Handles administrative chores, scheduling logistics, inventory
+        reconciliation, departmental planning workshops, payroll reviews, and vendor
+        onboarding paperwork. Use when: encoding a FLAC audio file"
       ---
       Solo skill body.
     MARKDOWN
