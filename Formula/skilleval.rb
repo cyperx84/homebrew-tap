@@ -3,8 +3,8 @@ class Skilleval < Formula
 
   desc "Contention eval for AgentSkills: catch skills that steal each other's triggers"
   homepage "https://github.com/cyperx84/skilleval"
-  url "https://github.com/cyperx84/skilleval/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "424ebda30fc844fe03be192f3950847eac26ac1fc782a5c4c59a90a9ade8eabb"
+  url "https://github.com/cyperx84/skilleval/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "a2004d71cedc07e0ef1687dbf4fb0ed292f425fe5133424c83e2ce36b05a4c87"
   license "MIT"
   head "https://github.com/cyperx84/skilleval.git", branch: "main"
 
@@ -21,7 +21,8 @@ class Skilleval < Formula
     (testpath/"roster/alpha/SKILL.md").write <<~MARKDOWN
       ---
       name: alpha
-      description: "Use when: scraping a webpage, fetching a URL"
+      description: "Use when: scraping a webpage, fetching a URL, crawling a docs site,
+        extracting page markdown, downloading site content"
       ---
       Alpha skill body.
     MARKDOWN
@@ -29,7 +30,8 @@ class Skilleval < Formula
     (testpath/"roster/beta/SKILL.md").write <<~MARKDOWN
       ---
       name: beta
-      description: "Use when: rendering a video, encoding audio"
+      description: "Use when: rendering a video, encoding audio, trimming a clip,
+        muxing subtitle tracks, exporting a timeline"
       ---
       Beta skill body.
     MARKDOWN
@@ -59,7 +61,8 @@ class Skilleval < Formula
       name: victim
       description: "Handles administrative chores, scheduling logistics, inventory
         reconciliation, and departmental planning workshops. Use when: encoding a FLAC
-        audio file, pruning rose bushes, filing tax returns, debugging kernel panics"
+        audio file, pruning rose bushes, filing tax returns, debugging kernel panics,
+        calibrating a barometer"
       ---
       Victim skill body.
     MARKDOWN
@@ -68,12 +71,38 @@ class Skilleval < Formula
       ---
       name: thief
       description: "Use when: encoding a FLAC audio file, pruning rose bushes, filing
-        tax returns, debugging kernel panics"
+        tax returns, debugging kernel panics, calibrating a barometer"
       ---
       Thief skill body.
     MARKDOWN
     out = shell_output("#{bin}/skilleval contend thief", 1)
     assert_match "\"worst_victim\": \"victim\"", out
     assert_match "\"gate\": \"fail\"", out
+
+    # A rate with too few queries behind it is reported but must not gate: at
+    # 3 queries the smallest non-zero rate already clears the gate, so it would
+    # fail on quantisation noise. Reporting it is not the same as gating it.
+    (testpath/"thin/solo").mkpath
+    (testpath/"thin/solo/SKILL.md").write <<~MARKDOWN
+      ---
+      name: solo
+      description: "Use when: encoding a FLAC audio file"
+      ---
+      Solo skill body.
+    MARKDOWN
+    (testpath/"thin/broad").mkpath
+    (testpath/"thin/broad/SKILL.md").write <<~MARKDOWN
+      ---
+      name: broad
+      description: "Use when: encoding a FLAC audio file, encoding FLAC audio, FLAC
+        audio encoding, encode audio into FLAC, FLAC encoding for an audio file"
+      ---
+      Broad skill body.
+    MARKDOWN
+    ENV["SKILLEVAL_ROSTER"] = testpath/"thin"
+    thin = shell_output("#{bin}/skilleval contend broad")
+    assert_match "\"worst_victim_rate\": 1.0", thin
+    assert_match "not gated", thin
+    assert_match "\"gate\": \"pass\"", thin
   end
 end
